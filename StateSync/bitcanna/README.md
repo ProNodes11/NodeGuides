@@ -1,6 +1,12 @@
 
 # StateSync for Bitcanna
 
+## Автоматическая синхронизация
+```
+wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/StateSync/bitcanna/statesync.sh && chmod 700 statesync.sh && ./statesync.sh
+```
+
+## Ручная синхронизация
 Для работы необходимо установить jq
 ```
 sudo apt install jq
