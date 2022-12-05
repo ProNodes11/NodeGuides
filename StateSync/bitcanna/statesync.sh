@@ -5,7 +5,7 @@ curl -s https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/logo | bash
 sudo apt install jq
 sudo systemctl stop bcnad 
 peers="3f9e2b5b27b5ca47a2f29df83cc1afdd5640d6da@216.238.73.231:26656"
-sed -i.bak -e  "s/^persistent_peers *=.*/persistent_peers = \"$peers\"/" ~/.defund/config/config.toml
+sed -i.bak -e  "s/^persistent_peers *=.*/persistent_peers = \"$peers\"/" ~/.bcna/config/config.toml
 SNAP_RPC="216.238.73.231:26657"
 SNAP_RPC2="216.238.73.231:26657"
 LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height); \
