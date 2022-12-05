@@ -5,7 +5,7 @@ curl -s https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/logo | bash
 sudo apt install jq
 sudo systemctl stop bitsongd 
 peers="b8ff427848ab5dc9336b30c1fc667ab735f9b34e@65.108.238.163:26656"
-sed -i.bak -e  "s/^persistent_peers *=.*/persistent_peers = \"$peers\"/" ~/.defund/config/config.toml
+sed -i.bak -e  "s/^persistent_peers *=.*/persistent_peers = \"$peers\"/" ~/.bitsongd/config/config.toml
 SNAP_RPC="65.108.238.163:26657"
 SNAP_RPC2="65.108.238.163:26657"
 LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height); \
