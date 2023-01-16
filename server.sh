@@ -208,6 +208,13 @@ break
 ;;
 
 "Install Starknet")
+echo -e "\033[0;31m	Enter Alhemy endpoint:\033[0m"
+echo "_|-_|-_|-_|-_|-_|-_|"
+read ALCHEMY
+echo "_|-_|-_|-_|-_|-_|-_|"
+echo export ALCHEMY=${ALCHEMY} >> $HOME/.bash_profile
+sudo apt update -y && sudo apt install curl git tmux python3 python3-venv python3-dev build-essential libgmp-dev pkg-config libssl-dev -y
+sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
 git clone https://github.com/eqlabs/pathfinder.git
 cd pathfinder
 git fetch
