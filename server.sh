@@ -19,6 +19,7 @@ options=(
 "Node repp"
 "Install Nibiru"
 "Install Starknet"
+"Install Lambdavm"
 "Exit")
 select opt in "${options[@]}"
 do
@@ -204,6 +205,40 @@ echo -e "\033[0;31m Nibiru docs - \033[0m https://docs.nibiru.fi/run-nodes/testn
 echo -e "\033[0;31m Sui rep     - \033[0m https://github.com/MystenLabs/sui"
 echo -e "\033[0;31m Sui docs    - \033[0m https://docs.sui.io/devnet/build/fullnode"
 echo -e "\033[0;31m Wait        - \033[0m"
+break
+;;
+
+"Install Lambdavm"
+echo -e "\033[0;31m	Enter Moniker:\033[0m"
+read MONIKER
+echo export MONIKER=${MONIKER} >> $HOME/.bash_profile
+git clone https://github.com/LambdaIM/lambdavm.git
+cd lambdavm && git checkout v1.0.0
+make install
+lambdavm config chain-id lambdatest_92001-2
+lambdavm init $MONIKER --chain-id lambdatest_92001-2
+wget https://raw.githubusercontent.com/LambdaIM/testnets/main/lambdatest_92001-2/genesis.json
+mv genesis.json ~/.lambdavm/config/
+PEERS=`curl -sL https://raw.githubusercontent.com/LambdaIM/testnets/main/lambdatest_92001-2/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
+sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.lambdavm/config/config.toml
+echo "[Unit]
+Description=StarkNet
+After=network.target
+
+[Service]
+User=$USER
+Type=simple
+ExecStart=$(which lambdavm)
+Restart=on-failure
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target" > $HOME/lambdavm.service
+mv $HOME/lambdavm.service /etc/systemd/system/
+sudo systemctl restart systemd-journald
+sudo systemctl daemon-reload
+sudo systemctl enable lambdavm
+sudo systemctl restart lambdavm
 break
 ;;
 
