@@ -20,6 +20,7 @@ options=(
 "Install Nibiru"
 "Install Starknet"
 "Install Lambdavm"
+"Install Chainflip"
 "Exit")
 select opt in "${options[@]}"
 do
@@ -285,6 +286,66 @@ sudo systemctl restart systemd-journald
 sudo systemctl daemon-reload
 sudo systemctl enable starknetd
 sudo systemctl restart starknetd
+break
+;;
+
+"Install Chainflip")
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL repo.chainflip.io/keys/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/chainflip.gpg
+echo "deb [signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.chainflip.io/perseverance/ focal main" | sudo tee /etc/apt/sources.list.d/chainflip.list
+sudo apt-get update
+sudo apt-get install -y chainflip-cli chainflip-node chainflip-engine
+sudo mkdir /etc/chainflip/keys
+echo -e "\033[0;31m	Enter private key:\033[0m"
+read private_key
+echo export private_key=${private_key} >> $HOME/.bash_profile
+echo -n $private_key | sudo tee /etc/chainflip/keys/ethereum_key_file
+chainflip-node key generate
+echo -e "\033[0;31m	Enter private key:\033[0m"
+read SECRET_SEED
+echo export SECRET_SEED=${SECRET_SEED} >> $HOME/.bash_profile
+SECRET_SEED=
+echo -n "${SECRET_SEED:2}" | sudo tee /etc/chainflip/keys/signing_key_file
+sudo chainflip-node key generate-node-key --file /etc/chainflip/keys/node_key_file
+sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
+sudo chmod 600 /etc/chainflip/keys/signing_key_file
+sudo chmod 600 /etc/chainflip/keys/node_key_file
+sudo mkdir -p /etc/chainflip/config
+echo -e "\033[0;31m	Enter ws_endpoint:\033[0m"
+read ws_endpoint
+echo export ws_endpoint=${ws_endpoint} >> $HOME/.bash_profile
+echo -e "\033[0;31m	Enter http_endpoint:\033[0m"
+read http_endpoint
+echo export http_endpoint=${http_endpoint} >> $HOME/.bash_profile
+sudo tee /etc/chainflip/config/Default.toml<<EOF
+# Default configurations for the CFE
+[node_p2p]
+node_key_file = "/etc/chainflip/keys/node_key_file"
+ip_address="$(wget -qO- eth0.me)"
+port = "8078"
+
+[state_chain]
+ws_endpoint = "ws://127.0.0.1:9944"
+signing_key_file = "/etc/chainflip/keys/signing_key_file"
+
+[eth]
+# Ethereum RPC endpoints (websocket and http for redundancy).
+ws_node_endpoint = "$ws_endpoint"
+http_node_endpoint = "$http_endpoint"
+
+# Ethereum private key file path. This file should contain a hex-encoded private key.
+private_key_file = "/etc/chainflip/keys/ethereum_key_file"
+
+[signing]
+db_file = "/etc/chainflip/data.db"
+EOF
+sudo systemctl enable chainflip-node
+sudo systemctl start chainflip-node
+sudo systemctl status chainflip-node
+sleep 600
+sudo systemctl enable chainflip-engine
+sudo systemctl start chainflip-engine
+sudo systemctl status chainflip-engine
 break
 ;;
 
