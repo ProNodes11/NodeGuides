@@ -342,11 +342,9 @@ db_file = "/etc/chainflip/data.db"
 EOF
 sudo systemctl enable chainflip-node
 sudo systemctl start chainflip-node
-sudo systemctl status chainflip-node
 sleep 600
 sudo systemctl enable chainflip-engine
 sudo systemctl start chainflip-engine
-sudo systemctl status chainflip-engine
 echo -e "\033[0;31m tail -f /var/log/chainflip-node.log\033[0m"
 echo -e "\033[0;31m tail -f /var/log/chainflip-engine.log\033[0m"
 break
