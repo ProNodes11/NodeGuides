@@ -208,7 +208,7 @@ echo -e "\033[0;31m Wait        - \033[0m"
 break
 ;;
 
-"Install Lambdavm"
+"Install Lambdavm")
 echo -e "\033[0;31m	Enter Moniker:\033[0m"
 read MONIKER
 echo export MONIKER=${MONIKER} >> $HOME/.bash_profile
