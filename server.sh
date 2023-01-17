@@ -300,12 +300,12 @@ sudo mkdir /etc/chainflip/keys
 echo -e "\033[0;31m	Enter private key:\033[0m"
 read private_key
 echo export private_key=${private_key} >> $HOME/.bash_profile
+echo Writing key file
 echo -n $private_key | sudo tee /etc/chainflip/keys/ethereum_key_file
 chainflip-node key generate
-echo -e "\033[0;31m	Enter private key:\033[0m"
+echo -e "\033[0;31m	Enter Secret seed:\033[0m"
 read SECRET_SEED
 echo export SECRET_SEED=${SECRET_SEED} >> $HOME/.bash_profile
-SECRET_SEED=
 echo -n "${SECRET_SEED:2}" | sudo tee /etc/chainflip/keys/signing_key_file
 sudo chainflip-node key generate-node-key --file /etc/chainflip/keys/node_key_file
 sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
