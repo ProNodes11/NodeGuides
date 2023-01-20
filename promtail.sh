@@ -1,4 +1,5 @@
 #!/bin/bash
+apt install unzip
 if [ ! $NAME ]; then
 read -p "Enter node name: " NAME
 echo 'export NAME='\"${NAME}\" >> $HOME/.bash_profile
