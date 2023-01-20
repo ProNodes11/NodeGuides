@@ -1,8 +1,12 @@
 #!/bin/bash
 apt install unzip
 if [ ! $NAME ]; then
-read -p "Enter node name: " NAME
+read -p "Enter log name: " NAME
 echo 'export NAME='\"${NAME}\" >> $HOME/.bash_profile
+fi
+if [ ! $JOB_NAME ]; then
+read -p "Enter job name: " JOB_NAME
+echo 'export JOB_NAME='\"${JOB_NAME}\" >> $HOME/.bash_profile
 fi
 curl -s https://api.github.com/repos/grafana/loki/releases/latest | grep browser_download_url |  cut -d '"' -f 4 | grep promtail-linux-amd64.zip | wget -i -
 unzip promtail-linux-amd64.zip
@@ -27,8 +31,8 @@ scrape_configs:
   - targets:
       - localhost
     labels:
-      job: varlogs
-      __path__: /var/log/$Name.log
+      job: $JOB_NAME
+      __path__: /var/log/$Name
 EOF
 
 sudo tee /etc/systemd/system/promtail.service<<EOF
