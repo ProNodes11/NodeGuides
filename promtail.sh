@@ -20,7 +20,7 @@ server:
   grpc_listen_port: 0
 
 positions:
-  filename: /data/loki/positions.yaml
+  filename: /data/positions.yaml
 
 clients:
   - url: http://65.108.83.53:3100/loki/api/v1/push
@@ -32,7 +32,7 @@ scrape_configs:
       - localhost
     labels:
       job: $JOB_NAME
-      __path__: /var/log/${Name}
+      __path__: /var/log/$NAME
 EOF
 
 sudo tee /etc/systemd/system/promtail.service<<EOF
