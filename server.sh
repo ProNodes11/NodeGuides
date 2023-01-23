@@ -232,7 +232,7 @@ After=network.target
 [Service]
 User=$USER
 Type=simple
-ExecStart=$(which lambdavm) start
+ExecStart=$(which lambdavm) start --home $PASS/.lambdavm
 Restart=on-failure
 LimitNOFILE=65535
 StandardOutput=append:/var/log/lambdavm
