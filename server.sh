@@ -213,17 +213,20 @@ break
 echo -e "\033[0;31m	Enter Moniker:\033[0m"
 read MONIKER
 echo export MONIKER=${MONIKER} >> $HOME/.bash_profile
+echo -e "\033[0;31m	Enter Pass:\033[0m"
+read PASS
+echo export PASS=${PASS} >> $HOME/.bash_profile
 git clone https://github.com/LambdaIM/lambdavm.git
 cd lambdavm && git checkout v1.0.0
 make install
 lambdavm config chain-id lambdatest_92001-2
-lambdavm init $MONIKER --chain-id lambdatest_92001-2
+lambdavm init $MONIKER --chain-id lambdatest_92001-2 --home $PASS
 wget https://raw.githubusercontent.com/LambdaIM/testnets/main/lambdatest_92001-2/genesis.json
-mv genesis.json ~/.lambdavm/config/
+mv genesis.json $PASS/.lambdavm/config/
 PEERS=`curl -sL https://raw.githubusercontent.com/LambdaIM/testnets/main/lambdatest_92001-2/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
-sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.lambdavm/config/config.toml
+sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $PASS/.lambdavm/config/config.toml
 echo "[Unit]
-Description=StarkNet
+Description=Lambdavm
 After=network.target
 
 [Service]
@@ -232,7 +235,8 @@ Type=simple
 ExecStart=$(which lambdavm) start
 Restart=on-failure
 LimitNOFILE=65535
-
+StandardOutput=append:/var/log/lambdavm
+StandardError=append:/var/log/lambdavm
 [Install]
 WantedBy=multi-user.target" > $HOME/lambdavm.service
 mv $HOME/lambdavm.service /etc/systemd/system/
@@ -279,7 +283,8 @@ WorkingDirectory=$HOME/pathfinder/py
 ExecStart=/bin/bash -c \"source $HOME/pathfinder/py/.venv/bin/activate && /usr/local/bin/pathfinder --http-rpc=\"0.0.0.0:9545\" --ethereum.url $ALCHEMY\"
 Restart=on-failure
 LimitNOFILE=65535
-
+StandardOutput=append:/var/log/starknetd
+StandardError=append:/var/log/starknetd
 [Install]
 WantedBy=multi-user.target" > $HOME/starknetd.service
 mv $HOME/starknetd.service /etc/systemd/system/
