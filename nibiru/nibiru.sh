@@ -1,10 +1,5 @@
 #!/bin/bash
 
-while true
-do
-
-# Logo
-
 curl -s https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/logo | bash
 
 read -p "Enter pass for node: " PASS
