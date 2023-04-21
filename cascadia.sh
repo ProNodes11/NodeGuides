@@ -3,7 +3,6 @@
 echo "Enter the moniker: "
 read MONIKER_CASCADIA
 
-CHAIN_ID_CASCADIA=cascadia_6102-1
 PORT_CASCADIA=39
 
 echo -e "\033[0;31m Server preparing\033[0m"
@@ -65,9 +64,6 @@ LimitNOFILE=65535
 [Install]
 WantedBy=multi-user.target
 EOF
-echo "Enter link for snapshot"
-read LINK
-curl $LINK | tar -xf - -C $HOME/.cascadiad
 
 echo -e "\033[0;31m Starting node\033[0m"
 systemctl daemon-reload
