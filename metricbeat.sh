@@ -2,8 +2,8 @@
 
 curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-8.7.0-linux-x86_64.tar.gz
 tar xzvf metricbeat-8.7.0-linux-x86_64.tar.gz
-mv metricbeat-8.7.0-linux-x86_64 /etc/metricbeat
-rm /etc/metricbeat/metricbeat.yml
+sudo mv metricbeat-8.7.0-linux-x86_64 /etc/metricbeat
+sudo rm /etc/metricbeat/metricbeat.yml
 
 sudo tee /etc/metricbeat/metricbeat.yml > /dev/null <<EOF
 metricbeat.config.modules:
@@ -44,6 +44,6 @@ LimitNOFILE=infinity
 WantedBy=multi-user.target
 EOF
 
-systemctl daemon-reload
-systemctl enable metricbeat
-systemctl start metricbeat
+sudo systemctl daemon-reload
+sudo systemctl enable metricbeat
+sudo systemctl start metricbeat
