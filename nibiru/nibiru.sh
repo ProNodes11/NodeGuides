@@ -69,7 +69,7 @@ echo "- type: http
   wait: 1s
   ssl:
     verification_mode: none
-  tags: ["Nibiru"]" >> /etc/hearbeat/heartbeat.yml
+  tags: ["Nibiru"]" >> /etc/heartbeat/heartbeat.yml
 systemctl restart heartbeat
 
 
@@ -84,28 +84,28 @@ echo "  - type: log
     encoding: plain" >> /etc/filebeat/filebeat.yml
 systemctl restart filebeat
 
-echo -e "\033[0;32m Start node\033[0m"
+echo -e "\033[0;32m Starting node\033[0m"
 sudo -S systemctl daemon-reload
 sudo -S systemctl enable nibid
 sudo -S systemctl start nibid
 
 echo -e "\033[0;33m Check services\033[0m"
 if [[ `service heartbeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;33m Update Heartbeat sucsesfull\033[0m"
+  echo -e "\033[0;32m Update Heartbeat sucsesfull\033[0m"
 else
   echo -e "\033[0;31m Update Heartbeat failed\033[0m"
 fi
 
 if [[ `service filebeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;33m Update Filebeat sucsesfull\033[0m"
+  echo -e "\033[0;32m Update Filebeat sucsesfull\033[0m"
 else
   echo -e "\033[0;31m Update Filebeat failed\033[0m"
 fi
 
 if [[ `service nibid status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;33m Node running\033[0m"
+  echo -e "\033[0;32m Node running\033[0m"
 else
   echo -e "\033[0;31m Node not working\033[0m"
 fi
 
-echo -e "\033[0;31m Script ended\033[0m"
+echo -e "\033[0;33m Script ended\033[0m"
