@@ -64,7 +64,7 @@ sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${N
 echo -e "\033[0;33m Update Heartbeat config\033[0m"
 echo "- type: http
   name: Nibiru-node
-  hosts: ['$(wget -qO- eth0.me):$(echo $PORT)657']
+  hosts: ['$(wget -qO- eth0.me):$(echo $NIBIRU_PORT)657']
   schedule: '@every 60s'
   timeout: 1s
   wait: 1s
