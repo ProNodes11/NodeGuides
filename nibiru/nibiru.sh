@@ -17,6 +17,7 @@ nibid init $MONIKER --chain-id $CHAIN_ID
 curl -s https://networks.itn.nibiru.fi/nibiru-itn-1/genesis > $HOME/.nibid/config/genesis.json
 nibid config chain-id $CHAIN_ID
 nibid config keyring-backend test
+nibid config node tcp://localhost:29657
 
 echo -e "\033[0;33m Install Cosmovisor\033[0m"
 go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
