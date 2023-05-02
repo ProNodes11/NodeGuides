@@ -2,7 +2,7 @@
 
 curl -s https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/logo | bash
 
-PORT=29
+NIBIRU_PORT=29
 CHAIN_ID=nibiru-itn-1
 
 read -p "Enter moniker for node: " MONIKER
@@ -14,6 +14,7 @@ git checkout v0.19.2
 make install
 echo -e "\033[0;33m Configuring node\033[0m"
 nibid init $MONIKER --chain-id $CHAIN_ID
+curl -s https://networks.itn.nibiru.fi/nibiru-itn-1/genesis > $HOME/.nibid/config/genesis.json
 nibid config chain-id $CHAIN_ID
 nibid config keyring-backend test
 
@@ -56,8 +57,8 @@ echo -e "\033[0;33m Updating configs\033[0m"
 echo -e "\033[0;33m Update node config\033[0m"
 sed -i 's|^indexer *=.*|indexer = "null"|' ~/.nibid/config/config.toml
 sed -i.bak -e 's|^pruning *=.*|pruning = "custom"|; s|^pruning-keep-recent *=.*|pruning-keep-recent = "100"|; s|^pruning-keep-every *=.*|pruning-keep-every = "0"|; s|^pruning-interval *=.*|pruning-interval = "10"|' $HOME/.nibid/config/app.toml
-sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:26658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://0.0.0.0:26657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:6060\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:26656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":26660\"%" $HOME/.nibid/config/config.toml && \
-sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:1317\"%; s%^address = \":8080\"%address = \":8080\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:1090\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:1091\"%" $HOME/.nibid/config/app.toml
+sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${NIBIRU_PORT}658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://0.0.0.0:${NIBIRU_PORT}657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${NIBIRU_PORT}060\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:${NIBIRU_PORT}656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${NIBIRU_PORT}660\"%" $HOME/.nibid/config/config.toml
+sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${NIBIRU_PORT}317\"%; s%^address = \":8080\"%address = \":${NIBIRU_PORT}080\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:${NIBIRU_PORT}090\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:${NIBIRU_PORT}091\"%" $HOME/.nibid/config/app.toml
 
 echo -e "\033[0;33m Update Heartbeat config\033[0m"
 echo "- type: http
