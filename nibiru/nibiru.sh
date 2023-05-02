@@ -60,9 +60,15 @@ sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.
 sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:1317\"%; s%^address = \":8080\"%address = \":8080\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:1090\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:1091\"%" $HOME/.nibid/config/app.toml
 
 echo -e "\033[0;31m Update Heartbeat config\033[0m"
-echo "
-
-" >> /etc/filebeat/heartbeat.yml
+echo "- type: http
+  name: Nibiru-node
+  hosts: ['$(wget -qO- eth0.me):$(echo $PORT)657']
+  schedule: '@every 60s'
+  timeout: 1s
+  wait: 1s
+  ssl:
+    verification_mode: none
+  tags: ["Nibiru"]" >> /etc/filebeat/heartbeat.yml
 systemctl restart heartbeat
 if [[ `service heartbeat status | grep active` =~ "running" ]]; then
   echo -e "\033[0;31m Update Heartbeat sucsesfull\033[0m"
@@ -74,7 +80,7 @@ echo -e "\033[0;31m Update Filebeat config\033[0m"
 echo "  - type: log
     format: auto
     paths:
-      - /var/log/node-nibid
+      - /var/log/node-nibiru
     fields:
       host: $HOSTNAME
       name: nibiru
@@ -91,6 +97,6 @@ sudo -S systemctl daemon-reload
 sudo -S systemctl enable nibid
 sudo -S systemctl start nibid
 echo -e "\033[0;31m Node started \033[0m  "
-echo -e "\033[0;31m Node RPC \033[0m           http://$(wget -qO- eth0.me):26657"
+echo -e "\033[0;31m Node RPC \033[0m           http://$(wget -qO- eth0.me):657"
 echo -e "\033[0;31m Node API \033[0m           http://$(wget -qO- eth0.me):1317"
-echo -e "\033[0;31m You can check logs:\033[0m tail -f /var/log/nibid"
+echo -e "\033[0;31m You can check logs:\033[0m tail -f /var/log/node-nibiru"
