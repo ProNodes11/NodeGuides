@@ -25,7 +25,7 @@ echo -e "\033[0;33m Configuring Cosmovisor\033[0m"
 mkdir -p ~/.nibid/cosmovisor/genesis/bin
 mkdir -p ~/.nibid/cosmovisor/upgrades
 
-cp ~/go/bin/nibid ~/.babylond/cosmovisor/genesis/bin
+cp ~/go/bin/nibid ~/.nibid/cosmovisor/genesis/bin
 
 
 echo -e "\033[0;33m Creating service\033[0m"
@@ -69,7 +69,7 @@ echo "- type: http
   wait: 1s
   ssl:
     verification_mode: none
-  tags: ["Nibiru"]" >> /etc/filebeat/heartbeat.yml
+  tags: ["Nibiru"]" >> /etc/hearbeat/heartbeat.yml
 systemctl restart heartbeat
 
 
