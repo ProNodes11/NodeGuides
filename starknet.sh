@@ -2,7 +2,7 @@
 
 curl -s https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/logo | bash
 
-read -p "Enter moniker for node: " ALCHEMY_ENDPOINT
+read -p "Enter endpoint for node: " ALCHEMY_ENDPOINT
 
 echo "export ALCHEMY_ENDPOINT=$ALCHEMY_ENDPOINT" >> $HOME/.bash_profile && \
 source $HOME/.bash_profile
