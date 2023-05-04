@@ -32,18 +32,6 @@ sudo -S systemctl daemon-reload
 sudo -S systemctl enable gear
 sudo -S systemctl start gear
 
-echo -e "\033[0;33m Update Heartbeat config\033[0m"
-
-echo "- type: http
-  name: Gear-node
-  hosts: ['$(wget -qO- eth0.me):$(echo $PORT)657']
-  schedule: '@every 60s'
-  timeout: 1s
-  wait: 1s
-  ssl:
-    verification_mode: none
-  tags: ["Gear"]" >> /etc/heartbeat/heartbeat.yml
-systemctl restart heartbeat
 
 
 echo -e "\033[0;33m Update Filebeat config\033[0m"
@@ -61,12 +49,6 @@ systemctl daemon-reload
 systemctl enable gear
 systemctl restart gear
 
-echo -e "\033[0;33m Check services\033[0m"
-if [[ `service heartbeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Heartbeat sucsesfull\033[0m"
-else
-  echo -e "\033[0;31m Update Heartbeat failed\033[0m"
-fi
 
 if [[ `service filebeat status | grep active` =~ "running" ]]; then
   echo -e "\033[0;32m Update Filebeat sucsesfull\033[0m"
