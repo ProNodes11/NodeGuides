@@ -1,5 +1,9 @@
 #!/bin/bash
 
+PORT=28
+CASCADIA_TAG="v0.1.1"
+SNAP_RPC=185.213.27.91:36657
+
 if go version >/dev/null 2>&1;
 then
  echo -e "\033[0;31m Go is already installed\033[0m"
@@ -17,7 +21,7 @@ fi
 echo -e "\033[0;31m Install node\033[0m"
 git clone https://github.com/cascadiafoundation/cascadia
 cd cascadia
-git checkout v0.1.1
+git checkout $CASCADIA_TAG
 make install
 
 echo -e "\033[0;31m Configuring node\033[0m"
@@ -25,7 +29,6 @@ wget -O $HOME/.cascadiad/config/genesis.json   https://anode.team/Cascadia/test/
 
 peers="893b6d4be8b527b0eb1ab4c1b2f0128945f5b241@185.213.27.91:36656"
 sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$peers\"/" $HOME/.cascadiad/config/config.toml
-SNAP_RPC=185.213.27.91:36657
 
 LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height); \
 BLOCK_HEIGHT=$((LATEST_HEIGHT - 1000)); \
@@ -38,12 +41,12 @@ s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ; \
 s|^(trust_hash[[:space:]]+=[[:space:]]+).*$|\1\"$TRUST_HASH\"| ; \
 s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" /.cascadiad/config/config.toml
 
+sed -i 's|^pruning *=.*|pruning = "nothing"|g' $HOME/.cascadiad/config/app.toml
 indexer="null"
 sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.cascadiad/config/config.toml
 
-PORT=28
 sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${PORT}658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://127.0.0.1:${PORT}657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${PORT}060\"%; s%^laddr = \"tcp://0.0.0.0:266${PORT}\"%laddr = \"tcp://0.0.0.0:${PORT}656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${PORT}660\"%" $HOME/.cascadiad/config/config.toml
-sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${PORT}317\"%; s%^address = \":8080\"%address = \":${PORT}080\"%; s%^address = \"0.0.0.0:${PORT}90\"%address = \"0.0.0.0:${PORT}090\"%; s%^address = \"0.0.0.0:${PORT}91\"%address = \"0.0.0.0:${PORT}091\"%" $HOME/.cascadiad/config/app.toml
+sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${PORT}17\"%; s%^address = \":8080\"%address = \":${PORT}80\"%; s%^address = \"0.0.0.0:${PORT}90\"%address = \"0.0.0.0:${PORT}90\"%; s%^address = \"0.0.0.0:${PORT}91\"%address = \"0.0.0.0:${PORT}91\"%" $HOME/.cascadiad/config/app.toml
 
 echo -e "\033[0;33m Install Cosmovisor\033[0m"
 go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
@@ -62,10 +65,15 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=$(which cascadiad) start
-Restart=on-failure
-RestartSec=3
-LimitNOFILE=65535
+ExecStart=$HOME/go/bin/cosmovisor start
+Restart=always
+RestartSec=10
+LimitNOFILE=10000
+Environment="DAEMON_NAME=cascadiad"
+Environment="DAEMON_HOME=$HOME/.cascadiad"
+Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=true"
+Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
+Environment="UNSAFE_SKIP_BACKUP=true"
 StandardOutput=append:/var/log/node-cascadia
 StandardError=append:/var/log/node-cascadia
 
@@ -104,13 +112,13 @@ systemctl restart cascadiad
 
 echo -e "\033[0;33m Check services\033[0m"
 if [[ `service heartbeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Heartbeat sucsesfull\033[0m"
+  echo -e "\033[0;32m Update Heartbeat Successful\033[0m"
 else
   echo -e "\033[0;31m Update Heartbeat failed\033[0m"
 fi
 
 if [[ `service filebeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Filebeat sucsesfull\033[0m"
+  echo -e "\033[0;32m Update Filebeat Successful\033[0m"
 else
   echo -e "\033[0;31m Update Filebeat failed\033[0m"
 fi
