@@ -1,18 +1,10 @@
 #!/bin/bash
 
-if ss -tulpen | awk '{print $5}' | grep -q ":26656$" ; then
-        echo -e "\e[31mInstallation is not possible, port 26656 already in use.\e[39m"
-        exit
-else
-        echo ""
-fi
 NAMADA_TAG="v0.15.1"
 TM_HASH="v0.1.4-abciplus"
 NAMADA_CHAIN_ID="public-testnet-7.0.3c5a38dc983"
 
 echo -e "\033[0;31m Server preparing\033[0m"
-sudo apt update
-sudo apt install make clang pkg-config git-core libssl-dev build-essential libclang-12-dev git jq ncdu bsdmainutils htop -y < "/dev/null"
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 source $HOME/.cargo/env
@@ -75,7 +67,7 @@ echo -e "\033[0;33m Update Heartbeat config\033[0m"
 
 echo "- type: http
   name: Namada-node
-  hosts: ['$(wget -qO- eth0.me):26657']
+  hosts: ['localhost:26657']
   schedule: '@every 60s'
   timeout: 1s
   wait: 1s
@@ -102,13 +94,13 @@ systemctl restart namada
 
 echo -e "\033[0;33m Check services\033[0m"
 if [[ `service heartbeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Heartbeat sucsesfull\033[0m"
+  echo -e "\033[0;32m Update Heartbeat Successful\033[0m"
 else
   echo -e "\033[0;31m Update Heartbeat failed\033[0m"
 fi
 
 if [[ `service filebeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Filebeat sucsesfull\033[0m"
+  echo -e "\033[0;32m Update Filebeat Successful\033[0m"
 else
   echo -e "\033[0;31m Update Filebeat failed\033[0m"
 fi
