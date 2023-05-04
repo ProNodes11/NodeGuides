@@ -15,6 +15,7 @@ Description=Gear Node
 After=network.target
 
 [Service]
+
 Type=simple
 User=root
 WorkingDirectory=/root/
@@ -22,8 +23,9 @@ ExecStart=/usr/bin/gear --name "$NODE_NAME" --telemetry-url "ws://telemetry-back
 Restart=always
 RestartSec=3
 LimitNOFILE=10000
-StandardOutput=append:/var/log/gear
-StandardError=append:/var/log/gear
+StandardOutput=append:/var/log/node-gear
+StandardError=append:/var/log/node-gear
+
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -49,7 +51,7 @@ systemctl enable gear
 systemctl restart gear
 
 if [[ `service filebeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Filebeat sucsesfull\033[0m"
+  echo -e "\033[0;32m Update Filebeat Successful\033[0m"
 else
   echo -e "\033[0;31m Update Filebeat failed\033[0m"
 fi
