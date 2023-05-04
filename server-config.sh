@@ -60,7 +60,10 @@ processors:
 sudo systemctl enable metricbeat && sudo systemctl restart metricbeat
 
 echo -e "\033[0;33m Heartbeat installing \033[0m"
-sudo apt-get update && sudo apt-get install heartbeat -y
+curl -L -O https://artifacts.elastic.co/downloads/beats/heartbeat/heartbeat-8.7.1-linux-x86_64.tar.gz
+tar xzvf heartbeat-8.7.1-linux-x86_64.tar.gz
+rm heartbeat-8.7.1-linux-x86_64.tar.gz
+mv heartbeat-8.7.1-linux-x86_64 /etc/heartbeat
 rm /etc/heartbeat/heartbeat.yml
 echo "heartbeat.config.monitors:
   path: \${path.config}/monitors.d/*.yml
@@ -80,6 +83,20 @@ processors:
   - add_observer_metadata:
 
 heartbeat.monitors:" > /etc/heartbeat/heartbeat.yml
+sudo tee /etc/systemd/system/heartbeat.service  > /dev/null <<EOF
+[Unit]
+Description=metricbeat
+After=network-online.target
+[Service]
+User=root
+WorkingDirectory=/etc/heartbeat
+ExecStart=/etc/heartbeat/heartbeat -e
+RestartSec=10
+LimitNOFILE=infinity
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
 sudo systemctl enable heartbeat && sudo systemctl restart heartbeat
 
 if [[ `service heartbeat status | grep active` =~ "running" ]]; then
