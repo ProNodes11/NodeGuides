@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo -e "\033[0;31m Downloading node\033[0m"
-wget [https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz](https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz) && \
+wget https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && \
 tar xvf gear-nightly-linux-x86_64.tar.xz && \
 rm gear-nightly-linux-x86_64.tar.xz
 sudo cp gear /usr/bin
