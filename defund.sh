@@ -47,7 +47,7 @@ echo -e "\033[0;33m Configuring Cosmovisor\033[0m"
 mkdir -p ~/.defund/cosmovisor/genesis/bin
 mkdir -p ~/.defund/cosmovisor/upgrades
 
-cp ~/go/bin/defund ~/.defund/cosmovisor/genesis/bin
+cp ~/go/bin/defundd ~/.defund/cosmovisor/genesis/bin
 
 echo -e "\033[0;31m Creating service\033[0m"
 sudo tee /etc/systemd/system/defund.service > /dev/null <<EOF
@@ -61,7 +61,7 @@ ExecStart=$HOME/go/bin/cosmovisor start
 Restart=always
 RestartSec=10
 LimitNOFILE=10000
-Environment="DAEMON_NAME=defund"
+Environment="DAEMON_NAME=defundd"
 Environment="DAEMON_HOME=$HOME/.defund"
 Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=true"
 Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
@@ -85,7 +85,7 @@ echo -e "\033[0;33m Update Heartbeat config\033[0m"
 
 echo "- type: http
   name: Defund-node
-  hosts: ['$(wget -qO- eth0.me):$(echo $PORT)657']
+  hosts: ['http://$(wget -qO- eth0.me):$(echo $PORT)657']
   schedule: '@every 60s'
   timeout: 1s
   wait: 1s
