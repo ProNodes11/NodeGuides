@@ -26,8 +26,7 @@ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add
 echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-8.x.list
 sudo apt-get update && sudo apt-get install filebeat
 echo "output.elasticsearch:
-  hosts: ["lastic.stakeme.io"]
-  protocol: "https"
+  hosts: ["95.216.98.147:9200"]
   username: "elastic"
   password: "$PASSWORD"
 
@@ -48,8 +47,7 @@ setup.template.settings:
 setup.kibana:
 
 output.elasticsearch:
-  hosts: ["lastic.stakeme.io"]
-  protocol: "https"
+  hosts: ["95.216.98.147:9200"]
   username: "elastic"
   password: "$PASSWORD"
 processors:
@@ -74,8 +72,7 @@ echo "heartbeat.config.monitors:
   index.codec: best_compression
 
 output.elasticsearch:
-  hosts: ["lastic.stakeme.io"]
-  protocol: "https"
+  hosts: ["95.216.98.147:9200"]
   username: "elastic"
   password: "$PASSWORD"
 
