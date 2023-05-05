@@ -80,7 +80,7 @@ echo -e "\033[0;33m Update Heartbeat config\033[0m"
 
 echo "- type: http
   name: Nolus-node
-  hosts: ['$(wget -qO- eth0.me):$(echo $PORT)657']
+  hosts: ['http://$(wget -qO- eth0.me):$(echo $PORT)657']
   schedule: '@every 60s'
   timeout: 1s
   wait: 1s
