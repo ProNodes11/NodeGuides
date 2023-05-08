@@ -29,21 +29,19 @@ git clone https://github.com/anoma/namada
 cd namada
 git checkout $NAMADA_TAG
 make build-release
-sudo mv target/release/namada /usr/local/bin/
 
 cd $HOME && sudo rm -rf tendermint
 git clone https://github.com/heliaxdev/tendermint
 cd tendermint
 git checkout $TM_HASH
 make build
-sudo mv build/tendermint /usr/local/bin/
 cd $HOME
 namada client utils join-network --chain-id $NAMADA_CHAIN_ID
 
 echo -e "\033[0;31m Creating service\033[0m"
 sudo tee /etc/systemd/system/namada.service > /dev/null <<EOF
 [Unit]
-Description=Namafa Node
+Description=Namada Node
 After=network-online.target
 [Service]
 User=$USER
