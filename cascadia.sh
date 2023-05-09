@@ -3,6 +3,9 @@
 PORT=28
 CASCADIA_TAG="v0.1.1"
 SNAP_RPC=185.213.27.91:36657
+CHAIN_ID_CASCADIA=cascadia_6102-1
+echo "enter moniker"
+read MONIKER_CASCADIA
 
 if go version >/dev/null 2>&1;
 then
@@ -23,12 +26,13 @@ git clone https://github.com/cascadiafoundation/cascadia
 cd cascadia
 git checkout $CASCADIA_TAG
 make install
+cascadiad init $MONIKER_CASCADIA --chain-id $CHAIN_ID_CASCADIA
 
 echo -e "\033[0;31m Configuring node\033[0m"
-wget -O $HOME/.cascadiad/config/genesis.json   https://anode.team/Cascadia/test/genesis.json
+wget -O /root/.cascadiad/config/genesis.json   https://anode.team/Cascadia/test/genesis.json
 
 peers="893b6d4be8b527b0eb1ab4c1b2f0128945f5b241@185.213.27.91:36656"
-sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$peers\"/" $HOME/.cascadiad/config/config.toml
+sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$peers\"/" /root/.cascadiad/config/config.toml
 
 LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height); \
 BLOCK_HEIGHT=$((LATEST_HEIGHT - 1000)); \
@@ -41,9 +45,9 @@ s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ; \
 s|^(trust_hash[[:space:]]+=[[:space:]]+).*$|\1\"$TRUST_HASH\"| ; \
 s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" /.cascadiad/config/config.toml
 
-sed -i 's|^pruning *=.*|pruning = "nothing"|g' $HOME/.cascadiad/config/app.toml
+sed -i 's|^pruning *=.*|pruning = "nothing"|g' /root/.cascadiad/config/app.toml
 indexer="null"
-sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.cascadiad/config/config.toml
+sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" /root/.cascadiad/config/config.toml
 
 sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${PORT}658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://127.0.0.1:${PORT}657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${PORT}060\"%; s%^laddr = \"tcp://0.0.0.0:266${PORT}\"%laddr = \"tcp://0.0.0.0:${PORT}656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${PORT}660\"%" $HOME/.cascadiad/config/config.toml
 sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${PORT}17\"%; s%^address = \":8080\"%address = \":${PORT}80\"%; s%^address = \"0.0.0.0:${PORT}90\"%address = \"0.0.0.0:${PORT}90\"%; s%^address = \"0.0.0.0:${PORT}91\"%address = \"0.0.0.0:${PORT}91\"%" $HOME/.cascadiad/config/app.toml
@@ -52,10 +56,10 @@ echo -e "\033[0;33m Install Cosmovisor\033[0m"
 go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
 
 echo -e "\033[0;33m Configuring Cosmovisor\033[0m"
-mkdir -p ~/.cascadiad/cosmovisor/genesis/bin
-mkdir -p ~/.cascadiad/cosmovisor/upgrades
+mkdir -p /root/.cascadiad/cosmovisor/genesis/bin
+mkdir -p /root/.cascadiad/cosmovisor/upgrades
 
-cp ~/go/bin/cascadia ~/.cascadiad/cosmovisor/genesis/bin
+cp /root/go/bin/cascadia /root/.cascadiad/cosmovisor/genesis/bin
 
 echo -e "\033[0;31m Creating service\033[0m"
 sudo tee /etc/systemd/system/cascadiad.service > /dev/null <<EOF
