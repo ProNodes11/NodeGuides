@@ -26,13 +26,16 @@ cd defund
 git checkout $DEFUNd_TAG
 make install
 
-echo -e "\033[0;31m Configuring node\033[0m"
-defundd config keyring-backend test
-defundd config chain-id orbit-alpha-1
-defundd init $MONIKER --chain-id orbit-alpha-1
+mkdir -p $HOME/.defund/cosmovisor/genesis/bin
+mv build/defundd $HOME/.defund/cosmovisor/genesis/bin/
+rm -rf build
 
-curl -s https://raw.githubusercontent.com/defund-labs/testnet/main/defund-private-4/genesis.json > ~/.defund/config/genesis.json
-curl -s https://snapshots2-testnet.nodejumper.io/defund-testnet/addrbook.json > $HOME/.defund/config/addrbook.json
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
+curl -Ls https://snapshots.kjnodes.com/defund-testnet/genesis.json > $HOME/.defund/config/genesis.json
+curl -Ls https://snapshots.kjnodes.com/defund-testnet/addrbook.json > $HOME/.defund/config/addrbook.json
+
+curl -L https://snapshots.kjnodes.com/defund-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.defund
+[[ -f $HOME/.defund/data/upgrade-info.json ]] && cp $HOME/.defund/data/upgrade-info.json $HOME/.defund/cosmovisor/genesis/upgrade-info.json
 
 indexer="null"
 sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.defund/config/config.toml
@@ -40,32 +43,24 @@ sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.defund/config/config.
 sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${PORT}658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://127.0.0.1:${PORT}657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${PORT}060\"%; s%^laddr = \"tcp://0.0.0.0:266${PORT}\"%laddr = \"tcp://0.0.0.0:${PORT}656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${PORT}660\"%" $HOME/.defund/config/config.toml
 sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${PORT}17\"%; s%^address = \":8080\"%address = \":${PORT}80\"%; s%^address = \"0.0.0.0:${PORT}90\"%address = \"0.0.0.0:${PORT}90\"%; s%^address = \"0.0.0.0:${PORT}91\"%address = \"0.0.0.0:${PORT}91\"%" $HOME/.defund/config/app.toml
 
-echo -e "\033[0;33m Install Cosmovisor\033[0m"
-go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
-
-echo -e "\033[0;33m Configuring Cosmovisor\033[0m"
-mkdir -p ~/.defund/cosmovisor/genesis/bin
-mkdir -p ~/.defund/cosmovisor/upgrades
-
-cp ~/go/bin/defundd ~/.defund/cosmovisor/genesis/bin
-
 echo -e "\033[0;31m Creating service\033[0m"
 sudo tee /etc/systemd/system/defund.service > /dev/null <<EOF
 [Unit]
-Description=Defund Node
+Description=defund-testnet node service
 After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=$HOME/go/bin/cosmovisor start
-Restart=always
+ExecStart=$(which cosmovisor) run start
+Restart=on-failure
 RestartSec=10
-LimitNOFILE=10000
-Environment="DAEMON_NAME=defundd"
+LimitNOFILE=65535
 Environment="DAEMON_HOME=$HOME/.defund"
+Environment="DAEMON_NAME=defundd"
+Environment="UNSAFE_SKIP_BACKUP=true"
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$HOME/.defund/cosmovisor/current/bin"
 Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=true"
 Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
-Environment="UNSAFE_SKIP_BACKUP=true"
 StandardOutput=append:/var/log/node-defund
 StandardError=append:/var/log/node-defund
 
@@ -73,13 +68,11 @@ StandardError=append:/var/log/node-defund
 WantedBy=multi-user.target
 EOF
 
-defundd tendermint unsafe-reset-all --home $HOME/.defund --keep-addr-book
-SNAP_NAME=$(curl -s https://snapshots2-testnet.nodejumper.io/defund-testnet/info.json | jq -r .fileName)
-curl "https://snapshots2-testnet.nodejumper.io/defund-testnet/${SNAP_NAME}" | lz4 -dc - | tar -xf - -C "$HOME/.defund"
-
 sudo systemctl daemon-reload
-sudo systemctl enable defundd
-sudo systemctl start defundd
+sudo systemctl enable defund
+sudo systemctl start defund
+
+defund init $MONIKER --chain-id orbit-alpha-1
 
 echo -e "\033[0;33m Update Heartbeat config\033[0m"
 
