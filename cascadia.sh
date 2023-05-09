@@ -25,7 +25,7 @@ git clone https://github.com/cascadiafoundation/cascadia
 cd cascadia
 git checkout $CASCADIA_TAG
 make install
-cascadiad init $MONIKER_CASCADIA --chain-id $CHAIN_ID_CASCADIA
+cascadiad init $NODE_MONIKER --chain-id $CHAIN_ID_CASCADIA
 
 echo -e "\033[0;31m Configuring node\033[0m"
 wget -O /root/.cascadiad/config/genesis.json   https://anode.team/Cascadia/test/genesis.json
