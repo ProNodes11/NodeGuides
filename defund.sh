@@ -20,22 +20,26 @@ else
   echo -e "\033[0;31m Go installed $(go version) \033[0m"
 fi
 
-echo -e "\033[0;31m Install node\033[0m"
-git clone https://github.com/defund-labs/defund
+# Clone project repository
+cd $HOME
+rm -rf defund
+git clone https://github.com/defund-labs/defund.git
 cd defund
-git checkout $DEFUNd_TAG
-make install
+git checkout v0.2.6
 
+# Build binaries
+make build
+
+# Prepare binaries for Cosmovisor
 mkdir -p $HOME/.defund/cosmovisor/genesis/bin
 mv build/defundd $HOME/.defund/cosmovisor/genesis/bin/
 rm -rf build
 
-go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
-curl -Ls https://snapshots.kjnodes.com/defund-testnet/genesis.json > $HOME/.defund/config/genesis.json
-curl -Ls https://snapshots.kjnodes.com/defund-testnet/addrbook.json > $HOME/.defund/config/addrbook.json
+# Create application symlinks
+sudo ln -s $HOME/.defund/cosmovisor/genesis $HOME/.defund/cosmovisor/current -f
+sudo ln -s $HOME/.defund/cosmovisor/current/bin/defundd /usr/local/bin/defundd -f
 
-curl -L https://snapshots.kjnodes.com/defund-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.defund
-[[ -f $HOME/.defund/data/upgrade-info.json ]] && cp $HOME/.defund/data/upgrade-info.json $HOME/.defund/cosmovisor/genesis/upgrade-info.json
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
 
 indexer="null"
 sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.defund/config/config.toml
@@ -72,7 +76,13 @@ sudo systemctl daemon-reload
 sudo systemctl enable defund
 sudo systemctl start defund
 
+curl -Ls https://snapshots.kjnodes.com/defund-testnet/genesis.json > $HOME/.defund/config/genesis.json
+curl -Ls https://snapshots.kjnodes.com/defund-testnet/addrbook.json > $HOME/.defund/config/addrbook.json
+
 defund init $MONIKER --chain-id orbit-alpha-1
+
+curl -L https://snapshots.kjnodes.com/defund-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.defund
+[[ -f $HOME/.defund/data/upgrade-info.json ]] && cp $HOME/.defund/data/upgrade-info.json $HOME/.defund/cosmovisor/genesis/upgrade-info.json
 
 echo -e "\033[0;33m Update Heartbeat config\033[0m"
 
