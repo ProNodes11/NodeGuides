@@ -14,7 +14,7 @@ git checkout v0.19.2
 make install
 echo -e "\033[0;33m Configuring node\033[0m"
 nibid init $MONIKER --chain-id $CHAIN_ID
-curl -s https://networks.itn.nibiru.fi/nibiru-itn-1/genesis > $HOME/.nibid/config/genesis.json
+curl -s https://networks.itn.nibiru.fi/nibiru-itn-1/genesis > /root/.nibid/config/genesis.json
 nibid config chain-id $CHAIN_ID
 nibid config keyring-backend test
 nibid config node tcp://localhost:29657
@@ -23,10 +23,10 @@ echo -e "\033[0;33m Install Cosmovisor\033[0m"
 go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
 
 echo -e "\033[0;33m Configuring Cosmovisor\033[0m"
-mkdir -p ~/.nibid/cosmovisor/genesis/bin
-mkdir -p ~/.nibid/cosmovisor/upgrades
+mkdir -p /root/.nibid/cosmovisor/genesis/bin
+mkdir -p /root/.nibid/cosmovisor/upgrades
 
-cp ~/go/bin/nibid ~/.nibid/cosmovisor/genesis/bin
+cp /root/go/bin/nibid /root/.nibid/cosmovisor/genesis/bin
 
 
 echo -e "\033[0;33m Creating service\033[0m"
@@ -36,8 +36,8 @@ Description=Nibiru node
 After=network-online.target
 
 [Service]
-User=$USER
-ExecStart=$HOME/go/bin/cosmovisor start
+User=root
+ExecStart=/root/go/bin/cosmovisor start
 Restart=always
 RestartSec=10
 LimitNOFILE=10000
