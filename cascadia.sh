@@ -4,8 +4,7 @@ PORT=28
 CASCADIA_TAG="v0.1.1"
 SNAP_RPC=185.213.27.91:36657
 CHAIN_ID_CASCADIA=cascadia_6102-1
-echo "enter moniker"
-read MONIKER_CASCADIA
+read -r -p "Enter node moniker: " NODE_MONIKER
 
 if go version >/dev/null 2>&1;
 then
