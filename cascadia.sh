@@ -58,7 +58,7 @@ echo -e "\033[0;33m Configuring Cosmovisor\033[0m"
 mkdir -p /root/.cascadiad/cosmovisor/genesis/bin
 mkdir -p /root/.cascadiad/cosmovisor/upgrades
 
-cp /root/go/bin/cascadia /root/.cascadiad/cosmovisor/genesis/bin
+cp /root/go/bin/cascadiad /root/.cascadiad/cosmovisor/genesis/bin
 
 echo -e "\033[0;31m Creating service\033[0m"
 sudo tee /etc/systemd/system/cascadiad.service > /dev/null <<EOF
