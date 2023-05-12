@@ -25,6 +25,7 @@ StandardError=append:/var/log/node-subspace
 WantedBy=multi-user.target
 EOF 
 
+
 sudo systemctl daemon-reload
 sudo systemctl enable subspaced
 sudo systemctl restart subspaced
