@@ -287,6 +287,7 @@ StandardOutput=append:/var/log/starknetd
 StandardError=append:/var/log/starknetd
 [Install]
 WantedBy=multi-user.target" > $HOME/starknetd.service
+
 mv $HOME/starknetd.service /etc/systemd/system/
 sudo systemctl restart systemd-journald
 sudo systemctl daemon-reload
@@ -347,9 +348,7 @@ db_file = "/etc/chainflip/data.db"
 EOF
 sudo systemctl enable chainflip-node
 sudo systemctl start chainflip-node
-sleep 600
-sudo systemctl enable chainflip-engine
-sudo systemctl start chainflip-engine
+
 echo -e "\033[0;31m tail -f /var/log/chainflip-node.log\033[0m"
 echo -e "\033[0;31m tail -f /var/log/chainflip-engine.log\033[0m"
 break
