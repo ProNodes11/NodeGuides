@@ -5,6 +5,20 @@ curl -s https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/logo | bash
 NIBIRU_PORT=29
 CHAIN_ID=nibiru-itn-1
 
+if go version >/dev/null 2>&1;
+then
+ echo -e "\033[0;31m Go is already installed\033[0m"
+else
+  ver="1.20.3" && \
+  wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz" && \
+  sudo rm -rf /usr/local/go && \
+  sudo tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz" && \
+  rm "go$ver.linux-amd64.tar.gz" && \cd
+  echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile && \
+  source $HOME/.bash_profile && \
+  echo -e "\033[0;31m Go installed $(go version) \033[0m"
+fi
+
 read -p "Enter moniker for node: " MONIKER
 
 echo -e "\033[0;33m Install node\033[0m"
