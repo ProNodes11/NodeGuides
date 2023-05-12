@@ -6,7 +6,6 @@ sudo mv subspace-cli /usr/local/bin/
 sudo rm -rf $HOME/.config/subspace-cli
 /usr/local/bin/subspace-cli init
 
-sleep 1
 sudo tee /etc/systemd/system/subspace.service  > /dev/null <<EOF
 [Unit]
 Description=Subspace Node
@@ -23,14 +22,13 @@ StandardError=append:/var/log/node-subspace
 
 [Install]
 WantedBy=multi-user.target
-EOF 
-
+EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable subspaced
-sudo systemctl restart subspaced
+sudo systemctl enable subspace
+sudo systemctl restart subspace
 
-if [[ `service subspaced status | grep active` =~ "running" ]]; then
+if [[ `service subspace status | grep active` =~ "running" ]]; then
   echo -e "Your Subspace node \e[32minstalled and works\e[39m!"
 else
   echo -e "Your Subspace node \e[31mwas not installed correctly\e[39m, please reinstall."
