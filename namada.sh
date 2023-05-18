@@ -1,71 +1,86 @@
 #!/bin/bash
 
-NAMADA_TAG="v0.15.1"
+NAMADA_TAG="v0.15.3"
 TM_HASH="v0.1.4-abciplus"
-NAMADA_CHAIN_ID="public-testnet-7.0.3c5a38dc983"
+NAMADA_CHAIN_ID="public-testnet-8.0.b92ef72b820"
 
-echo -e "\033[0;31m Server preparing\033[0m"
+if [ ! $VALIDATOR_ALIAS ]; then
+	read -p "Enter validator name: " VALIDATOR_ALIAS
+	echo 'export VALIDATOR_ALIAS='\"${VALIDATOR_ALIAS}\" >> $HOME/.bash_profile
+fi
+echo -e 'Setting up swapfile...\n'
+curl -s https://api.nodes.guru/swap8.sh | bash
+echo 'source $HOME/.bashrc' >> $HOME/.bash_profile
+. $HOME/.bash_profile
+sleep 1
+cd $HOME
+sudo apt update
+sudo apt install make clang pkg-config git-core libssl-dev build-essential libclang-12-dev git jq ncdu bsdmainutils htop -y < "/dev/null"
 
+echo -e '\n\e[42mInstall Rust\e[0m\n' && sleep 1
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 source $HOME/.cargo/env
 
-if go version >/dev/null 2>&1;
-then
- echo -e "\033[0;31m Go is already installed\033[0m"
-else
-  ver="1.20.3" && \
-  wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz" && \
-  sudo rm -rf /usr/local/go && \
-  sudo tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz" && \
-  rm "go$ver.linux-amd64.tar.gz" && \cd
-  echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile && \
-  source $HOME/.bash_profile && \
-  echo -e "\033[0;31m Go installed $(go version) \033[0m"
-fi
+echo -e '\n\e[42mInstall Go\e[0m\n' && sleep 1
+cd $HOME
+wget -O go1.19.4.linux-amd64.tar.gz https://golang.org/dl/go1.19.4.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.19.4.linux-amd64.tar.gz && sudo rm go1.19.4.linux-amd64.tar.gz
+echo 'export GOROOT=/usr/local/go' >> $HOME/.bash_profile
+echo 'export GOPATH=$HOME/go' >> $HOME/.bash_profile
+echo 'export GO111MODULE=on' >> $HOME/.bash_profile
+echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> $HOME/.bash_profile && . $HOME/.bash_profile
+go version
 
-echo -e "\033[0;31m Installing software\033[0m"
+echo -e '\n\e[42mInstall software\e[0m\n' && sleep 1
 cd $HOME && sudo rm -rf $HOME/namada
-git clone https://github.com/anoma/namada
-cd namada
-git checkout $NAMADA_TAG
-make build-release
+wget -O namada-v0.15.3-Linux-x86_64.tar.gz https://github.com/anoma/namada/releases/download/v0.15.3/namada-v0.15.3-Linux-x86_64.tar.gz
+tar xvf namada-v0.15.3-Linux-x86_64.tar.gz
+sudo mv namada-v0.15.3-Linux-x86_64/namada /usr/local/bin/
+sudo mv namada-v0.15.3-Linux-x86_64/namada[c,n,w] /usr/local/bin/
+#git clone https://github.com/anoma/namada
+#cd namada
+#git checkout $NAMADA_TAG
+#make build-release
+#sudo mv target/release/namada /usr/local/bin/
+#sudo mv target/release/namada[c,n,w] /usr/local/bin/
 
 cd $HOME && sudo rm -rf tendermint
 git clone https://github.com/heliaxdev/tendermint
 cd tendermint
 git checkout $TM_HASH
 make build
+sudo mv build/tendermint /usr/local/bin/
 cd $HOME
 namada client utils join-network --chain-id $NAMADA_CHAIN_ID
-
-echo -e "\033[0;31m Creating service\033[0m"
-sudo tee /etc/systemd/system/namada.service > /dev/null <<EOF
-[Unit]
+sleep 3
+echo "[Unit]
 Description=Namada Node
-After=network-online.target
+After=network.target
+
 [Service]
 User=$USER
-ExecStart=${HOME}/go/bin/namada start
+WorkingDirectory=$HOME/.local/share/namada
+Type=simple
+ExecStart=/usr/local/bin/namada --base-dir=$HOME/.local/share/namada node ledger run
+Environment=NAMADA_TM_STDOUT=true
+RemainAfterExit=no
 Restart=always
-RestartSec=3
-LimitNOFILE=infinity
-LimitNPROC=infinity
+RestartSec=5s
+LimitNOFILE=65535
 StandardOutput=append:/var/log/node-namada
 StandardError=append:/var/log/node-namada
-
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target" > $HOME/namadad.service
+sudo mv $HOME/namadad.service /etc/systemd/system
+sudo tee <<EOF >/dev/null /etc/systemd/journald.conf
+Storage=persistent
 EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable namada
-sudo systemctl restart namada
 
 echo -e "\033[0;33m Update Heartbeat config\033[0m"
 
 echo "- type: http
   name: Namada-node
-  hosts: ['localhost:26657']
+  hosts: ['$(wget -qO- eth0.me):26657']
   schedule: '@every 60s'
   timeout: 1s
   wait: 1s
@@ -84,29 +99,18 @@ echo "  - type: log
       host: $HOSTNAME
       name: namada
     encoding: plain" >> /etc/filebeat/filebeat.yml
-systemctl restart filebeat
+    
+echo -e '\n\e[42mRunning a service\e[0m\n' && sleep 1
+sudo systemctl restart systemd-journald
+sudo systemctl daemon-reload
+sudo systemctl enable namadad
+sudo systemctl restart namadad
 
-systemctl daemon-reload
-systemctl enable namada
-systemctl restart namada
-
-echo -e "\033[0;33m Check services\033[0m"
-if [[ `service heartbeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Heartbeat Successful\033[0m"
-else
-  echo -e "\033[0;31m Update Heartbeat failed\033[0m"
+echo -e '\n\e[42mCheck node status\e[0m\n' && sleep 1
+if [[ `service namadad status | grep active` =~ "running" ]]; then
+	  echo -e "Your namada node \e[32minstalled and works\e[39m!"
+	    echo -e "You can check node status by the command \e[7mservice namadad status\e[0m"
+	      echo -e "Press \e[7mQ\e[0m for exit from status menu"
+      else
+	        echo -e "Your namada node \e[31mwas not installed correctly\e[39m, please reinstall."
 fi
-
-if [[ `service filebeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Filebeat Successful\033[0m"
-else
-  echo -e "\033[0;31m Update Filebeat failed\033[0m"
-fi
-
-if [[ `service namada status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Node running\033[0m"
-else
-  echo -e "\033[0;31m Node not working\033[0m"
-fi
-
-echo -e "\033[0;33m Script ended\033[0m"
