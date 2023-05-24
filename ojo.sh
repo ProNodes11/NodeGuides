@@ -79,6 +79,7 @@ ojod init $MONIKER --chain-id ojo-devnet
 curl -Ls https://snapshots.kjnodes.com/ojo-testnet/genesis.json > $HOME/.ojo/config/genesis.json
 curl -Ls https://snapshots.kjnodes.com/ojo-testnet/addrbook.json > $HOME/.ojo/config/addrbook.json
 
+
 # Add seeds
 sed -i -e "s|^seeds *=.*|seeds = \"3f472746f46493309650e5a033076689996c8881@ojo-testnet.rpc.kjnodes.com:15059\"|" $HOME/.ojo/config/config.toml
 
@@ -112,7 +113,7 @@ echo -e "\033[0;33m Update Filebeat config\033[0m"
 echo "  - type: log
     format: auto
     paths:
-      - /var/log/node-nolus
+      - /var/log/node-ojo
     fields:
       host: $HOSTNAME
       name: ojo
@@ -120,8 +121,8 @@ echo "  - type: log
 systemctl restart filebeat
 
 systemctl daemon-reload
-systemctl enable nolus
-systemctl restart nolus
+systemctl enable ojod
+systemctl restart ojod
 
 echo -e "\033[0;33m Check services\033[0m"
 if [[ `service heartbeat status | grep active` =~ "running" ]]; then
