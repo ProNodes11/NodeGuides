@@ -24,8 +24,8 @@ echo -e "\033[0;33m Install Cosmovisor\033[0m"
 go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
 
 echo -e "\033[0;33m Configuring Cosmovisor\033[0m"
-mkdir -p ~/.nibid/cosmovisor/genesis/bin
-mkdir -p ~/.nibid/cosmovisor/upgrades
+mkdir -p ~/.okbchaind/cosmovisor/genesis/bin
+mkdir -p ~/.okbchaind/cosmovisor/upgrades
 
 cp ~/go/bin/okbchaind ~/.okbchaind/cosmovisor/genesis/bin
 
