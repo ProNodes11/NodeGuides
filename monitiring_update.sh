@@ -178,7 +178,7 @@ fi
 if test -f "$MUON_NODE"; then
     echo "- type: http
             name: Muon-node
-            hosts: ['http://$(wget -qO- eth0.me)/status']
+            hosts: ['http://$(wget -qO- eth0.me):8000/status']
             ipv4: true
             mode: any
             timeout: 1s
