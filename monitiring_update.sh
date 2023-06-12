@@ -159,3 +159,28 @@ if test -f "$OJO_DIR"; then
 
   sed -i 's|^log_format *=.*|log_format = "json"|' $HOME/.ojod/config/config.toml
 fi
+
+if test -f "$SHARD_NODE"; then
+    echo "- type: http
+        name: Shardeum-node
+        hosts: ['http://$(wget -qO- eth0.me):8080']
+        schedule: '@every 60s'
+        timeout: 1s
+        wait: 1s
+        ssl:
+          verification_mode: none
+        tags: ["Shardeum"]" >> /etc/heartbeat/heartbeat.yml
+
+fi
+
+if test -f "$MUON_NODE"; then
+    echo "- type: http
+            name: Muon-node
+            hosts: ['http://$(wget -qO- eth0.me)/status']
+            ipv4: true
+            mode: any
+            timeout: 1s
+            wait: 1s
+            tags: ["Muon"]" >> /etc/heartbeat/heartbeat.yml
+
+fi
