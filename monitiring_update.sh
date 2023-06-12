@@ -6,6 +6,8 @@ CASCADIA_DIR=/$HOME/.cascadiad/data/priv_validator_state.json
 BABYLON_DIR=/$HOME/.babylond/data/priv_validator_state.json
 ANDROMEDA_DIR=/$HOME/.andromedad/data/priv_validator_state.json
 OJO_DIR=/$HOME/.ojo/data/priv_validator_state.json
+SHARD_NODE=/$HOME/.shardeum/shell.sh
+MUON_NODE=/$HOME/muon-node/docker-compose.yml
 
 if test -f "$NIBIRU_DIR"; then
   echo "- type: http
