@@ -18,6 +18,7 @@ else
   rm "go$ver.linux-amd64.tar.gz" && \cd
   echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile && \
   source $HOME/.bash_profile && \
+  export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin \
   echo -e "\033[0;33m Go installed $(go version) \033[0m"
 fi
 
