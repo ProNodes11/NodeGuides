@@ -13,7 +13,7 @@ if test -f "$NIBIRU_DIR"; then
   mv .nibid/data/priv_validator_state.json $HOME
   rm -rf .nibid/data/*
   mv priv_validator_state.json .nibid/data
-  curl -L https://snapshots.kjnodes.com/nibiru-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.nibid
+  curl -s https://snapshots2-testnet.nodejumper.io/nibiru-testnet/wasm.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid/data
   systemctl start nibid
   echo "Nidiru cleaned"
 fi
