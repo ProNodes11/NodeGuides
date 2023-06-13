@@ -7,3 +7,6 @@ Andromeda installing :
 ```
 wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/andromeda.sh && chmod +x andromeda.sh && ./andromeda.sh
 ```
+Muon installing:
+```
+wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/muon.sh && chmod +x muon.sh && ./muon.sh
