@@ -11,3 +11,7 @@ Muon installing:
 ```
 wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/muon.sh && chmod +x muon.sh && ./muon.sh
 ```
+Cleaning cosmos data:
+```
+wget https://github.com/ProNodes11/NodeGuides/blob/main/autoclean_cosmos.sh && chmod +x autoclean_cosmos.sh && ./autoclean_cosmos.sh
+```
