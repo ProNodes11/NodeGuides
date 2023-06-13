@@ -13,6 +13,7 @@ echo -e "\033[0;33m Updating configs\033[0m"
 echo -e "\033[0;33m Update Heartbeat config\033[0m"
 echo "- type: http
   hosts: ['$(wget -qO- eth0.me):8000/status']
+  schedule: '@every 60s'
   ipv4: true
   mode: any
   name: Muon-node
