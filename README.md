@@ -23,3 +23,7 @@ Gear installing:
 ```
 wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/gear.sh && chmod +x gear.sh && ./gear.sh
 ```
+Nibiru installing:
+```
+wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/nibiru.sh && chmod +x nibiru.sh && ./nibiru.sh
+```
