@@ -19,4 +19,7 @@ Muon installing:
 ```
 wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/muon.sh && chmod +x muon.sh && ./muon.sh
 ```
-
+Gear installing:
+```
+wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/gear.sh && chmod +x gear.sh && ./gear.sh
+```
