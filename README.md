@@ -9,7 +9,7 @@ wget https://github.com/ProNodes11/NodeGuides/blob/main/autoclean_cosmos.sh && c
 ```
 Installing filebeat:
 ```
-wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/filebeat.sh && chmod +x && ./filebeat.sh
+wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/filebeat.sh && chmod +x filebeat.sh && ./filebeat.sh
 ```
 Andromeda installing :
 ```
