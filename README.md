@@ -7,6 +7,10 @@ Cleaning cosmos data:
 ```
 wget https://github.com/ProNodes11/NodeGuides/blob/main/autoclean_cosmos.sh && chmod +x autoclean_cosmos.sh && ./autoclean_cosmos.sh
 ```
+Installing filebeat:
+```
+wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/filebeat.sh && chmod +x && ./filebeat.sh
+```
 Andromeda installing :
 ```
 wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/andromeda.sh && chmod +x andromeda.sh && ./andromeda.sh
