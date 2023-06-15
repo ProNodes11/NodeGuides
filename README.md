@@ -31,3 +31,7 @@ Defund installing:
 ```
 wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/defund.sh && chmod +x defund.sh && ./defund.sh
 ```
+Namada installing:
+```
+wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/namada.sh && chmod +x namada.sh && ./namada.sh
+```
