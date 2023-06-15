@@ -15,3 +15,6 @@ Folder with scripts for sync node
 
 ## Update
 Folder with scripts for update node
+
+## Deprecated
+Folder with useless scripts
