@@ -45,7 +45,7 @@ https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/testnets/okb.sh && 
 ```
 ## Starknet
 ```
-https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/testnets/starknet.sh && chmod +x starknet.sh && ./andromeda.sh
+https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/testnets/starknet.sh && chmod +x starknet.sh && ./starknet.sh
 ```
 ## Subspace
 ```
