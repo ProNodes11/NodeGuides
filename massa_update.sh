@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /root 
+cd $HOME
  
 wget https://github.com/massalabs/massa/releases/download/TEST.23.0/massa_TEST.23.0_release_linux.tar.gz 
  
