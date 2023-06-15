@@ -27,3 +27,7 @@ Nibiru installing:
 ```
 wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/nibiru.sh && chmod +x nibiru.sh && ./nibiru.sh
 ```
+Defund installing:
+```
+wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/defund.sh && chmod +x defund.sh && ./defund.sh
+```
