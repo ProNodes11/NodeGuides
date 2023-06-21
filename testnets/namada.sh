@@ -1,8 +1,8 @@
 #!/bin/bash
 
-NAMADA_TAG="v0.15.3"
+NAMADA_TAG="v0.17.3"
 TM_HASH="v0.1.4-abciplus"
-NAMADA_CHAIN_ID="public-testnet-8.0.b92ef72b820"
+NAMADA_CHAIN_ID="public-testnet-9.0.5aa315d1a22"
 
 if [ ! $VALIDATOR_ALIAS ]; then
 	read -p "Enter validator name: " VALIDATOR_ALIAS
@@ -33,10 +33,10 @@ go version
 
 echo -e '\n\e[42mInstall software\e[0m\n' && sleep 1
 cd $HOME && sudo rm -rf $HOME/namada
-wget -O namada-v0.15.3-Linux-x86_64.tar.gz https://github.com/anoma/namada/releases/download/v0.15.3/namada-v0.15.3-Linux-x86_64.tar.gz
-tar xvf namada-v0.15.3-Linux-x86_64.tar.gz
-sudo mv namada-v0.15.3-Linux-x86_64/namada /usr/local/bin/
-sudo mv namada-v0.15.3-Linux-x86_64/namada[c,n,w] /usr/local/bin/
+wget -O namada-v0.17.3-Linux-x86_64.tar.gz https://github.com/anoma/namada/releases/download/v0.17.3/namada-v0.17.3-Linux-x86_64.tar.gz
+tar xvf namada-v0.17.3-Linux-x86_64.tar.gz
+sudo mv namada-v0.17.3-Linux-x86_64/namada /usr/local/bin/
+sudo mv namada-v0.17.3-Linux-x86_64/namada[c,n,w] /usr/local/bin/
 #git clone https://github.com/anoma/namada
 #cd namada
 #git checkout $NAMADA_TAG
@@ -44,14 +44,15 @@ sudo mv namada-v0.15.3-Linux-x86_64/namada[c,n,w] /usr/local/bin/
 #sudo mv target/release/namada /usr/local/bin/
 #sudo mv target/release/namada[c,n,w] /usr/local/bin/
 
-cd $HOME && sudo rm -rf tendermint
-git clone https://github.com/heliaxdev/tendermint
-cd tendermint
-git checkout $TM_HASH
-make build
-sudo mv build/tendermint /usr/local/bin/
+#cd $HOME && sudo rm -rf tendermint
+#git clone https://github.com/heliaxdev/tendermint
+#cd tendermint
+#git checkout $TM_HASH
+#make build
+#sudo mv build/tendermint /usr/local/bin/
 cd $HOME
 namada client utils join-network --chain-id $NAMADA_CHAIN_ID
+NAMADA_CMT_STDOUT=true TM_LOG_LEVEL=p2p:none,pex:error namada ledger run
 sleep 3
 echo "[Unit]
 Description=Namada Node
