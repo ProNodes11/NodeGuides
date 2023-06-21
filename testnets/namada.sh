@@ -62,6 +62,23 @@ namada client utils join-network --chain-id $CHAIN_ID_NAMADA
 wget "https://github.com/heliaxdev/anoma-network-config/releases/download/public-testnet-8.0.b92ef72b820/public-testnet-8.0.b92ef72b820.tar.gz"
 tar xvzf "$HOME/public-testnet-8.0.b92ef72b820.tar.gz"
 
+printf "[Unit]
+Description=namada
+After=network-online.target
+[Service]
+User=root
+WorkingDirectory=/root/.local/share/namada
+Environment=NAMADA_CMT_STDOUT=true
+Environment=TM_LOG_LEVEL="p2p:none,pex:error" 
+ExecStart=/usr/local/bin/namada node ledger run
+StandardOutput=append:/var/log/node-namada
+StandardError=append:/var/log/node-namada
+Restart=always
+RestartSec=10
+LimitNOFILE=65535
+[Install]
+WantedBy=multi-user.target" > /etc/systemd/system/namadad.service
+
 echo -e "\033[0;33m Update Heartbeat config\033[0m"
 
 echo "- type: http
