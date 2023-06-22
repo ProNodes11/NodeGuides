@@ -20,36 +20,19 @@ okbchaind config chain-id $CHAIN_ID
 okbchaind config keyring-backend test
 okbchaind config node tcp://localhost:27657
 
-echo -e "\033[0;33m Install Cosmovisor\033[0m"
-go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
-
-echo -e "\033[0;33m Configuring Cosmovisor\033[0m"
-mkdir -p ~/.okbchaind/cosmovisor/genesis/bin
-mkdir -p ~/.okbchaind/cosmovisor/upgrades
-
-cp ~/go/bin/okbchaind ~/.okbchaind/cosmovisor/genesis/bin
-
-
-echo -e "\033[0;33m Creating service\033[0m"
-sudo tee /etc/systemd/system/okbchaind.service  > /dev/null <<EOF
+sudo tee /etc/systemd/system/okbchaind.service > /dev/null <<EOF
 [Unit]
-Description=Okb node 
+Description=Okbchain 
 After=network-online.target
-
 [Service]
 User=$USER
-ExecStart=$HOME/go/bin/cosmovisor start
+ExecStart=$(which okbchaind) start --chain-id okbchaintest-195
 Restart=always
-RestartSec=10
-LimitNOFILE=10000
-Environment="DAEMON_NAME=okbchaind"
-Environment="DAEMON_HOME=$HOME/.okbchaind"
-Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=true"
-Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
-Environment="UNSAFE_SKIP_BACKUP=true"
+RestartSec=3
+LimitNOFILE=infinity
+LimitNPROC=infinity
 StandardOutput=append:/var/log/node-okb
 StandardError=append:/var/log/node-okb
-
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -57,7 +40,6 @@ EOF
 echo -e "\033[0;33m Updating configs\033[0m"
 
 echo -e "\033[0;33m Update node config\033[0m"
-sed -i 's|^indexer *=.*|indexer = "null"|' ~/.okbchaind/config/config.toml
 sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${OKB_PORT}658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://0.0.0.0:${OKB_PORT}657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${OKB_PORT}060\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:${OKB_PORT}656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${OKB_PORT}660\"%" $HOME/.okbchaind/config/config.toml
 
 echo -e "\033[0;33m Update Heartbeat config\033[0m"
