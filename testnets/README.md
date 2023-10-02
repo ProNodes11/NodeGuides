@@ -29,7 +29,7 @@ https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/testnets/namada.sh 
 ```
 ## Nibiru
 ```
-https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/testnets/nibiru.sh && chmod +x nibiru.sh && ./nibiru.sh
+wget https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/testnets/nibiru.sh && chmod +x nibiru.sh && ./nibiru.sh
 ```
 ## Nolus
 ```
