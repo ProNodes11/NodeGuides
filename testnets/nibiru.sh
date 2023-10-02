@@ -3,7 +3,7 @@
 curl -s https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/logo | bash
 
 NIBIRU_PORT=29
-CHAIN_ID=nibiru-itn-1
+CHAIN_ID=nibiru-itn-2
 
 if go version >/dev/null 2>&1;
 then
@@ -22,15 +22,18 @@ fi
 read -p "Enter moniker for node: " MONIKER
 
 echo -e "\033[0;33m Install node\033[0m"
-git clone https://github.com/NibiruChain/nibiru nibiru
-cd nibiru
-git checkout v0.19.2
+rm -rf nibiru
+git clone https://github.com/NibiruChain/nibiru
+cd nibiru || return
+git checkout v0.21.10
 make install
+
 echo -e "\033[0;33m Configuring node\033[0m"
-nibid init $MONIKER --chain-id $CHAIN_ID
-curl -s https://networks.itn.nibiru.fi/nibiru-itn-1/genesis > /root/.nibid/config/genesis.json
-nibid config chain-id $CHAIN_ID
 nibid config keyring-backend test
+nibid config chain-id nibiru-itn-2
+nibid init $MONIKER --chain-id $CHAIN_ID
+curl -s https://rpc.itn-2.nibiru.fi/genesis | jq -r .result.genesis > $HOME/.nibid/config/genesis.json
+curl -s https://snapshots-testnet.nodejumper.io/nibiru-testnet/addrbook.json > $HOME/.nibid/config/addrbook.json
 nibid config node tcp://localhost:29657
 
 echo -e "\033[0;33m Install Cosmovisor\033[0m"
