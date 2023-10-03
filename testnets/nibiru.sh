@@ -4,6 +4,7 @@ curl -s https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/logo | bash
 
 NIBIRU_PORT=29
 CHAIN_ID=nibiru-itn-2
+SNAP_NAME=$(curl -s https://snapshots-testnet.nodejumper.io/nibiru-testnet/info.json | jq -r .fileName)
 
 if go version >/dev/null 2>&1;
 then
@@ -35,6 +36,8 @@ nibid init $MONIKER --chain-id $CHAIN_ID
 curl -s https://rpc.itn-2.nibiru.fi/genesis | jq -r .result.genesis > $HOME/.nibid/config/genesis.json
 curl -s https://snapshots-testnet.nodejumper.io/nibiru-testnet/addrbook.json > $HOME/.nibid/config/addrbook.json
 nibid config node tcp://localhost:29657
+curl "https://snapshots-testnet.nodejumper.io/nibiru-testnet/${SNAP_NAME}" | lz4 -dc - | tar -xf - -C $HOME/.nibid
+
 
 echo -e "\033[0;33m Install Cosmovisor\033[0m"
 go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
