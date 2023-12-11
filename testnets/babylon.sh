@@ -72,7 +72,7 @@ echo -e "\033[0;33m Update node config\033[0m"
 sed -i 's|^indexer *=.*|indexer = "null"|' ~/.babylond/config/config.toml
 sed -i.bak -e 's|^pruning *=.*|pruning = "custom"|; s|^pruning-keep-recent *=.*|pruning-keep-recent = "100"|; s|^pruning-keep-every *=.*|pruning-keep-every = "0"|; s|^pruning-interval *=.*|pruning-interval = "10"|' $HOME/.babylond/config/app.toml
 sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${BABYLON_PORT}658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://0.0.0.0:${BABYLON_PORT}657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${BABYLON_PORT}60\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:${BABYLON_PORT}656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${BABYLON_PORT}660\"%" $HOME/.babylond/config/config.toml
-sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${BABYLON_PORT}17\"%; s%^address = \":8080\"%address = \":${BABYLON_PORT}80\"%; s%^address = \":9090\"%address = \":${BABYLON_PORT}90\"%; s%^address = \":9091\"%address = \":${BABYLON_PORT}91\"%" $HOME/.babylond/config/app.toml
+sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${BABYLON_PORT}17\"%; s%^address = \":8080\"%address = \":${BABYLON_PORT}80\"%; s%^address = \"localhost:9090\"%address = \"localhost:${BABYLON_PORT}90\"%; s%^address = \"localhost:9091\"%address = \"localhost:${BABYLON_PORT}91\"%" $HOME/.babylond/config/app.toml
 
 sed -i \
   -e 's|^pruning *=.*|pruning = "custom"|' \
