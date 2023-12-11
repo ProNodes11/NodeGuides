@@ -51,7 +51,7 @@ WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable babylon.service
+sudo systemctl enable babylond.service
 
 
 echo -e "\033[0;33m Initialize the node \033[0m"
@@ -86,4 +86,4 @@ curl -L https://snapshots.kjnodes.com/babylon-testnet/snapshot_latest.tar.lz4 | 
 [[ -f $HOME/.babylond/data/upgrade-info.json ]] && cp $HOME/.babylond/data/upgrade-info.json $HOME/.babylond/cosmovisor/genesis/upgrade-info.json
 
 echo -e "\033[0;33m Start and logs\033[0m"
-sudo systemctl start babylon.service && sudo journalctl -u babylon.service -f --no-hostname -o cat
+sudo systemctl start babylond.service && sudo journalctl -u babylond.service -f --no-hostname -o cat
