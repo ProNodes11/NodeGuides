@@ -3,57 +3,70 @@
 curl -s https://raw.githubusercontent.com/ProNodes11/NodeGuides/main/logo | bash
 
 BABYLON_PORT=31
-CHAIN_ID=bbn-test1
+CHAIN_ID=bbn-test-2
 
 read -p "Enter moniker for node: " MONIKER
 
 echo -e "\033[0;33m Install node\033[0m"
-git clone https://github.com/babylonchain/babylon.git babylon
+
+cd $HOME
+rm -rf babylon
+git clone https://github.com/babylonchain/babylon.git
 cd babylon
-git checkout v0.5.0
-make install
-echo -e "\033[0;33m Configuring node\033[0m"
-babylond init $MONIKER --chain-id $CHAIN_ID
-curl -s https://snapshots.polkachu.com/testnet-genesis/babylon/genesis.json > $HOME/.babylond/config/genesis.json
-babylond config chain-id $CHAIN_ID
-babylond config keyring-backend test
-babylond config node tcp://localhost:31657
+git checkout v0.7.2
+make build
+
 
 echo -e "\033[0;33m Install Cosmovisor\033[0m"
-go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
+mkdir -p $HOME/.babylond/cosmovisor/genesis/bin
+mv build/babylond $HOME/.babylond/cosmovisor/genesis/bin/
+rm -rf build
 
-echo -e "\033[0;33m Configuring Cosmovisor\033[0m"
-mkdir -p ~/.babylond/cosmovisor/genesis/bin
-mkdir -p ~/.babylond/cosmovisor/upgrades
+sudo ln -s $HOME/.babylond/cosmovisor/genesis $HOME/.babylond/cosmovisor/current -f
+sudo ln -s $HOME/.babylond/cosmovisor/current/bin/babylond /usr/local/bin/babylond -f
 
-cp ~/go/bin/babylond ~/.babylond/cosmovisor/genesis/bin
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.5.0
+
 
 
 echo -e "\033[0;33m Creating service\033[0m"
-sudo tee /etc/systemd/system/babylond.service  > /dev/null <<EOF
+sudo tee /etc/systemd/system/babylond.service > /dev/null << EOF
 [Unit]
-Description=Babylon node 
+Description=babylon node service
 After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=$HOME/go/bin/cosmovisor start
-Restart=always
+ExecStart=$(which cosmovisor) run start
+Restart=on-failure
 RestartSec=10
-LimitNOFILE=10000
-Environment="DAEMON_NAME=babylond"
+LimitNOFILE=65535
 Environment="DAEMON_HOME=$HOME/.babylond"
-Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=true"
-Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
+Environment="DAEMON_NAME=babylond"
 Environment="UNSAFE_SKIP_BACKUP=true"
-StandardOutput=append:/var/log/node-babylon
-StandardError=append:/var/log/node-babylon
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$HOME/.babylond/cosmovisor/current/bin"
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-echo -e "\033[0;33m Updating configs\033[0m"
+sudo systemctl daemon-reload
+sudo systemctl enable babylon.service
+
+
+echo -e "\033[0;33m Initialize the node \033[0m"
+babylond config chain-id bbn-test-2
+babylond config keyring-backend test
+
+babylond init $MONIKER --chain-id bbn-test-2
+
+echo -e "\033[0;33m Download genesis and addrbook \033[0m"
+curl -Ls https://snapshots.kjnodes.com/babylon-testnet/genesis.json > $HOME/.babylond/config/genesis.json
+curl -Ls https://snapshots.kjnodes.com/babylon-testnet/addrbook.json > $HOME/.babylond/config/addrbook.json
+
+sed -i -e "s|^seeds *=.*|seeds = \"3f472746f46493309650e5a033076689996c8881@babylon-testnet.rpc.kjnodes.com:16459\"|" $HOME/.babylond/config/config.toml
+
+sed -i -e "s|^minimum-gas-prices *=.*|minimum-gas-prices = \"0.00001ubbn\"|" $HOME/.babylond/config/app.toml
 
 echo -e "\033[0;33m Update node config\033[0m"
 sed -i 's|^indexer *=.*|indexer = "null"|' ~/.babylond/config/config.toml
@@ -61,52 +74,16 @@ sed -i.bak -e 's|^pruning *=.*|pruning = "custom"|; s|^pruning-keep-recent *=.*|
 sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${BABYLON_PORT}658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://0.0.0.0:${BABYLON_PORT}657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${BABYLON_PORT}60\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:${BABYLON_PORT}656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${BABYLON_PORT}660\"%" $HOME/.babylond/config/config.toml
 sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${BABYLON_PORT}17\"%; s%^address = \":8080\"%address = \":${BABYLON_PORT}80\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:${BABYLON_PORT}90\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:${BABYLON_PORT}91\"%" $HOME/.babylond/config/app.toml
 
-echo -e "\033[0;33m Update Heartbeat config\033[0m"
-echo "- type: http
-  name: Babylon-node
-  hosts: ['http://$(wget -qO- eth0.me):$(echo $BABYLON_PORT)657']
-  schedule: '@every 60s'
-  timeout: 1s
-  wait: 1s
-  ssl:
-    verification_mode: none
-  tags: ["Babylon"]" >> /etc/heartbeat/heartbeat.yml
-systemctl restart heartbeat
+sed -i \
+  -e 's|^pruning *=.*|pruning = "custom"|' \
+  -e 's|^pruning-keep-recent *=.*|pruning-keep-recent = "100"|' \
+  -e 's|^pruning-keep-every *=.*|pruning-keep-every = "0"|' \
+  -e 's|^pruning-interval *=.*|pruning-interval = "19"|' \
+  $HOME/.babylond/config/app.toml
 
+echo -e "\033[0;33m Latest snapshot\033[0m"
+curl -L https://snapshots.kjnodes.com/babylon-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.babylond
+[[ -f $HOME/.babylond/data/upgrade-info.json ]] && cp $HOME/.babylond/data/upgrade-info.json $HOME/.babylond/cosmovisor/genesis/upgrade-info.json
 
-echo -e "\033[0;33m Update Filebeat config\033[0m"
-echo "  - type: log
-    format: auto
-    paths:
-      - /var/log/node-babylon
-    fields:
-      host: $HOSTNAME
-      name: babylon
-    encoding: plain" >> /etc/filebeat/filebeat.yml
-systemctl restart filebeat
-
-echo -e "\033[0;32m Starting node\033[0m"
-sudo -S systemctl daemon-reload
-sudo -S systemctl enable babylond
-sudo -S systemctl start babylond
-
-echo -e "\033[0;33m Check services\033[0m"
-if [[ `service heartbeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Heartbeat sucsesfull\033[0m"
-else
-  echo -e "\033[0;31m Update Heartbeat failed\033[0m"
-fi
-
-if [[ `service filebeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Filebeat sucsesfull\033[0m"
-else
-  echo -e "\033[0;31m Update Filebeat failed\033[0m"
-fi
-
-if [[ `service babylond status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Node running\033[0m"
-else
-  echo -e "\033[0;31m Node not working\033[0m"
-fi
-
-echo -e "\033[0;33m Script ended\033[0m"
+echo -e "\033[0;33m Start and logs\033[0m"
+sudo systemctl start babylon.service && sudo journalctl -u babylon.service -f --no-hostname -o cat
