@@ -63,7 +63,7 @@ sudo systemctl enable ojo.service
 
 ojod config chain-id agamotto
 ojod config keyring-backend test
-ojod config node tcp://localhost:15057ojod 
+ojod config node tcp://localhost:15057
 
 echo -e "\033[0;31m Initialize\033[0m"
 init $MONIKER --chain-id agamotto
