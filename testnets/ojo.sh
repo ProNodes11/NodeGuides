@@ -19,32 +19,29 @@ else
   echo -e "\033[0;31m Go installed $(go version) \033[0m"
 fi
 
-# Clone project repository
+echo -e "\033[0;31m Project binaries \033[0m"
 cd $HOME
 rm -rf ojo
 git clone https://github.com/ojo-network/ojo.git
 cd ojo
-git checkout v0.1.2
+git checkout v0.3.0-rc3
 
-# Build binaries
 make build
 
-# Prepare binaries for Cosmovisor
 mkdir -p $HOME/.ojo/cosmovisor/genesis/bin
 mv build/ojod $HOME/.ojo/cosmovisor/genesis/bin/
 rm -rf build
 
-# Create application symlinks
 sudo ln -s $HOME/.ojo/cosmovisor/genesis $HOME/.ojo/cosmovisor/current -f
 sudo ln -s $HOME/.ojo/cosmovisor/current/bin/ojod /usr/local/bin/ojod -f
 
-# Download and install Cosmovisor
-go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.4.0
+echo -e "\033[0;31m Cosmos\033[0m"
+go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.5.0
 
-# Create service
-sudo tee /etc/systemd/system/ojod.service > /dev/null << EOF
+echo -e "\033[0;31m Creating service\033[0m"
+sudo tee /etc/systemd/system/ojo.service > /dev/null << EOF
 [Unit]
-Description=ojo-testnet node service
+Description=ojo node service
 After=network-online.target
 
 [Service]
@@ -57,28 +54,31 @@ Environment="DAEMON_HOME=$HOME/.ojo"
 Environment="DAEMON_NAME=ojod"
 Environment="UNSAFE_SKIP_BACKUP=true"
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$HOME/.ojo/cosmovisor/current/bin"
-StandardOutput=append:/var/log/node-ojo
-StandardError=append:/var/log/node-ojo
 
 [Install]
 WantedBy=multi-user.target
 EOF
-
 sudo systemctl daemon-reload
-sudo systemctl enable ojod
+sudo systemctl enable ojo.service
 
-# Set node configuration
-ojod config chain-id ojo-devnet
+ojod config chain-id agamotto
 ojod config keyring-backend test
-ojod config node tcp://localhost:15057
+ojod config node tcp://localhost:15057ojod 
 
-# Initialize the node
-ojod init $MONIKER --chain-id ojo-devnet
+echo -e "\033[0;31m Initialize\033[0m"
+init $MONIKER --chain-id agamotto
 
-# Download genesis and addrbook
 curl -Ls https://snapshots.kjnodes.com/ojo-testnet/genesis.json > $HOME/.ojo/config/genesis.json
 curl -Ls https://snapshots.kjnodes.com/ojo-testnet/addrbook.json > $HOME/.ojo/config/addrbook.json
 
+sed -i -e "s|^seeds *=.*|seeds = \"3f472746f46493309650e5a033076689996c8881@ojo-testnet.rpc.kjnodes.com:15059\"|" $HOME/.ojo/config/config.toml
+sed -i -e "s|^minimum-gas-prices *=.*|minimum-gas-prices = \"0uojo\"|" $HOME/.ojo/config/app.toml
+sed -i \
+  -e 's|^pruning *=.*|pruning = "custom"|' \
+  -e 's|^pruning-keep-recent *=.*|pruning-keep-recent = "100"|' \
+  -e 's|^pruning-keep-every *=.*|pruning-keep-every = "0"|' \
+  -e 's|^pruning-interval *=.*|pruning-interval = "19"|' \
+  $HOME/.ojo/config/app.toml
 
 # Add seeds
 sed -i -e "s|^seeds *=.*|seeds = \"3f472746f46493309650e5a033076689996c8881@ojo-testnet.rpc.kjnodes.com:15059\"|" $HOME/.ojo/config/config.toml
@@ -87,60 +87,11 @@ sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.
 sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${PORT}17\"%; s%^address = \":8080\"%address = \":${PORT}80\"%; s%^address = \"0.0.0.0:${PORT}90\"%address = \"0.0.0.0:${PORT}90\"%; s%^address = \"0.0.0.0:${PORT}91\"%address = \"0.0.0.0:${PORT}91\"%" $HOME/.ojo/config/app.toml
 sed -i.bak -e "s%^node = \"tcp://localhost:26657\"%node = \"tcp://localhost:${PORT}657\"%" $HOME/.ojo/config/client.toml
 
+echo -e "\033[0;31m Downloading snapshot\033[0m"
 curl -L https://snapshots.kjnodes.com/ojo-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.ojo
 [[ -f $HOME/.ojo/data/upgrade-info.json ]] && cp $HOME/.ojo/data/upgrade-info.json $HOME/.ojo/cosmovisor/genesis/upgrade-info.json
 
 echo -e "\033[0;31m Starting node\033[0m"
-sudo systemctl daemon-reload
-sudo systemctl enable ojod
-sudo systemctl start ojod
-
-echo -e "\033[0;33m Update Heartbeat config\033[0m"
-
-echo "- type: http
-  name: Ojo-node
-  hosts: ['$(wget -qO- eth0.me):$(echo $PORT)657']
-  schedule: '@every 60s'
-  timeout: 1s
-  wait: 1s
-  ssl:
-    verification_mode: none
-  tags: ["Ojo"]" >> /etc/heartbeat/heartbeat.yml
-systemctl restart heartbeat
+sudo systemctl start ojo.service && sudo journalctl -u ojo.service -f --no-hostname -o cat
 
 
-echo -e "\033[0;33m Update Filebeat config\033[0m"
-echo "  - type: log
-    format: auto
-    paths:
-      - /var/log/node-ojo
-    fields:
-      host: $HOSTNAME
-      name: ojo
-    encoding: plain" >> /etc/filebeat/filebeat.yml
-systemctl restart filebeat
-
-systemctl daemon-reload
-systemctl enable ojod
-systemctl restart ojod
-
-echo -e "\033[0;33m Check services\033[0m"
-if [[ `service heartbeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Heartbeat Successful\033[0m"
-else
-  echo -e "\033[0;31m Update Heartbeat failed\033[0m"
-fi
-
-if [[ `service filebeat status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Update Filebeat Successful\033[0m"
-else
-  echo -e "\033[0;31m Update Filebeat failed\033[0m"
-fi
-
-if [[ `service ojod status | grep active` =~ "running" ]]; then
-  echo -e "\033[0;32m Node running\033[0m"
-else
-  echo -e "\033[0;31m Node not working\033[0m"
-fi
-
-echo -e "\033[0;33m Script ended\033[0m"
