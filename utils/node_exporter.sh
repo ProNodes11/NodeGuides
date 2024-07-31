@@ -12,7 +12,7 @@ Description=Node Exporter
 User=node_exporter
 Group=node_exporter
 EnvironmentFile=-/etc/sysconfig/node_exporter
-ExecStart=/usr/local/bin/node_exporter $OPTIONS
+ExecStart=/usr/local/bin/node_exporter --web.listen-address=:40140
 
 [Install]
 WantedBy=multi-user.target
