@@ -1,9 +1,9 @@
 #!/bin/bash
 
 sudo useradd --system --shell /bin/false node_exporter
-curl -fsSL https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz 
-sudo tar -zxvf - -C /usr/local/bin --strip-components=1 node_exporter-1.3.1.linux-amd64/node_exporter 
-sudo chown node_exporter:node_exporter /usr/local/bin/node_exporter
+curl -fsSL https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz \
+  | sudo tar -zxvf - -C /usr/local/bin --strip-components=1 node_exporter-1.3.1.linux-amd64/node_exporter \
+  && sudo chown node_exporter:node_exporter /usr/local/bin/node_exporter
 sudo tee /etc/systemd/system/node_exporter.service <<"EOF"
 [Unit]
 Description=Node Exporter
